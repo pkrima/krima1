@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | AI Career Copilot{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">YOUR CAREER WORKSPACE</p>
+    <h1>Welcome back</h1>
+    <p class="page-subtitle">Signed in as {{ user }}. Turn your resume into a clear plan for your next role.</p>
+</section>
+
+{% if api_active %}
+<div style="background: #eef9f1; border: 1px solid #b7ebc6; border-radius: 8px; padding: 12px 18px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #28a745; color: white; font-size: 13px; font-weight: bold;">&#10003;</span>
+        <span style="color: #1e7e34; font-weight: 600; font-size: 0.95rem;">Google Gemini API is active on your project</span>
+    </div>
+    <button type="button" onclick="const s = document.getElementById('apiFormCard'); s.style.display = s.style.display === 'none' ? 'block' : 'none';" style="background: none; border: none; color: #155724; font-size: 0.85rem; text-decoration: underline; cursor: pointer;">Change key</button>
+</div>
+<div id="apiFormCard" class="card" style="display: none; margin-bottom: 24px; border: 1px solid #b7ebc6; background: #fafdfb;">
+    <h3 style="margin-top: 0; font-size: 1rem; color: #1e7e34;">Update Gemini API Key</h3>
+    <form method="POST" action="{{ url_for('save_api_key') }}" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input type="password" name="gemini_api_key" placeholder="Paste your new Google Gemini API key (AIzaSy...)" required style="flex: 1; min-width: 280px; padding: 9px 12px; border: 1px solid #c3e6cb; border-radius: 6px;">
+        <button type="submit" class="button button-primary" style="padding: 9px 18px;">Update Key</button>
+    </form>
+</div>
+{% else %}
+<div class="card" style="margin-bottom: 24px; border: 2px solid #ffc107; background: #fffdf5;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+        <span style="font-size: 1.3rem;">&#9888;&#65039;</span>
+        <h3 style="margin: 0; font-size: 1.1rem; color: #856404;">Activate Google Gemini API</h3>
+    </div>
+    <p style="margin: 0 0 14px 0; color: #533f03; font-size: 0.92rem;">
+        To run live AI resume analyses directly through Google Gemini, paste your API key below and click <strong>Activate API</strong>:
+    </p>
+    <form method="POST" action="{{ url_for('save_api_key') }}" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <input type="password" name="gemini_api_key" placeholder="Paste your Gemini API key here (AIzaSy...)" required style="flex: 1; min-width: 280px; padding: 10px 14px; border: 1px solid #ffe082; border-radius: 6px; font-size: 0.95rem;">
+        <button type="submit" class="button button-primary" style="padding: 10px 20px; white-space: nowrap;">Activate API &rarr;</button>
+    </form>
+    <small style="display: block; margin-top: 8px; color: #856404;">
+        Don't have an API key yet? Get one for free at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="color: #0d6efd; text-decoration: underline;">Google AI Studio</a>.
+    </small>
+</div>
+{% endif %}
+
+<section class="dashboard-grid">
+    <div class="card analyzer-card">
+        <div class="section-heading">
+            <div class="section-icon" aria-hidden="true">&#10024;</div>
+            <div>
+                <h2>Resume analysis</h2>
+                <p>Get tailored feedback and a practical roadmap.</p>
+            </div>
+        </div>
+        <form method="POST" action="{{ url_for('dashboard') }}" enctype="multipart/form-data" class="analyzer-form">
+            <label for="role">Target role</label>
+            <input id="role" type="text" name="role" placeholder="e.g. Backend engineer" required>
+
+            <label for="resume_text">Your resume</label>
+            <textarea id="resume_text" name="resume_text" placeholder="Paste your resume here, or upload a file below..." rows="9"></textarea>
+
+            <label for="resume_file" class="upload-label">Or upload a resume <span>PDF or DOCX</span></label>
+            <input id="resume_file" type="file" name="resume_file" accept=".pdf,.docx">
+
+            <button type="submit" class="button button-primary">Analyze my resume <span aria-hidden="true">&rarr;</span></button>
+        </form>
+    </div>
+
+    <aside class="card tip-card">
+        <p class="eyebrow">WHAT YOU'LL GET</p>
+        <h2>A clearer path forward</h2>
+        <ul class="benefit-list">
+            <li><span>&#10003;</span><div><strong>Skills snapshot</strong><small>See the strengths already in your resume.</small></div></li>
+            <li><span>&#10003;</span><div><strong>Skills to build</strong><small>Spot the gaps for your target role.</small></div></li>
+            <li><span>&#10003;</span><div><strong>Learning roadmap</strong><small>Get practical next steps to make progress.</small></div></li>
+            <li><span>&#10003;</span><div><strong>Interview practice</strong><small>Prepare with role-specific questions.</small></div></li>
+        </ul>
+        <a class="text-link" href="{{ url_for('history') }}">View your previous analyses <span aria-hidden="true">&rarr;</span></a>
+    </aside>
+</section>
+
+{% if result %}
+<section class="card results-card" aria-live="polite">
+    {% if result.error %}
+        <div class="analysis-error">
+            <strong>Analysis could not be completed</strong>
+            <p>{{ result.error }}</p>
+        </div>
+    {% else %}
+        <div class="results-heading">
+            <p class="eyebrow">{% if request.method == 'GET' %}LATEST ANALYSIS RESULT{% else %}YOUR RESULTS{% endif %}</p>
+            <h2>Your career action plan</h2>
+        </div>
+        <div class="results-grid">
+            <section class="result-section">
+                <h3>Skills you have</h3>
+                <ul>{% for item in result.get("skills", []) %}<li>{{ item }}</li>{% else %}<li>No skills listed.</li>{% endfor %}</ul>
+            </section>
+            <section class="result-section">
+                <h3>Skills to build</h3>
+                <ul>{% for item in result.get("missing_skills", []) %}<li>{{ item }}</li>{% else %}<li>No skill gaps listed.</li>{% endfor %}</ul>
+            </section>
+            <section class="result-section">
+                <h3>Your roadmap</h3>
+                <ul>{% for item in result.get("roadmap", []) %}<li>{{ item }}</li>{% else %}<li>No roadmap steps listed.</li>{% endfor %}</ul>
+            </section>
+            <section class="result-section">
+                <h3>Interview practice</h3>
+                <ul>{% for item in result.get("interview_questions", []) %}<li>{{ item }}</li>{% else %}<li>No questions listed.</li>{% endfor %}</ul>
+            </section>
+        </div>
+    {% endif %}
+</section>
+{% endif %}
+{% endblock %}

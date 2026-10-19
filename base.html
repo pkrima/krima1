@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f7fb">
+    <title>{% block title %}AI Career Copilot{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('stylesheet') }}?v=3">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav-container">
+            <a class="brand" href="{{ url_for('home') }}">
+                <span class="brand-mark">C</span>
+                <span>Career<span class="brand-accent">Copilot</span></span>
+            </a>
+            <nav class="site-nav" aria-label="Main navigation">
+                {% if session.get('user') %}
+                    <a href="{{ url_for('history') }}">History</a>
+                    <a href="{{ url_for('projects') }}">Portfolio</a>
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a class="nav-logout" href="{{ url_for('logout') }}">Log out</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Log in</a>
+                    <a class="nav-signup" href="{{ url_for('signup') }}">Create account</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    <main class="container main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-list" role="status">
+                    {% for category, message in messages %}
+                        <p class="flash flash-{{ category }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+        <p>AI Career Copilot <span>&middot;</span> Your next step starts here.</p>
+    </footer>
+</body>
+</html>

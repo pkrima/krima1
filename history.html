@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis history | AI Career Copilot{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">YOUR PROGRESS</p>
+    <h1>Analysis history</h1>
+    <p class="page-subtitle">Pick up where you left off and revisit your career plans.</p>
+</section>
+
+{% if reports %}
+    <div class="history-list">
+        {% for report in reports %}
+            <article class="card history-card">
+                <div class="history-resume">
+                    <p class="eyebrow">RESUME SNAPSHOT</p>
+                    <p>{{ report.resume[:240] }}{% if report.resume|length > 240 %}...{% endif %}</p>
+                </div>
+                {% if report.result.error %}
+                    <p class="history-error">{{ report.result.error }}</p>
+                {% else %}
+                    <div class="results-grid">
+                        <section class="result-section">
+                            <h3>Skills</h3>
+                            <ul>{% for item in report.result.get("skills", []) %}<li>{{ item }}</li>{% else %}<li>No skills listed.</li>{% endfor %}</ul>
+                        </section>
+                        <section class="result-section">
+                            <h3>Skills to build</h3>
+                            <ul>{% for item in report.result.get("missing_skills", []) %}<li>{{ item }}</li>{% else %}<li>No skill gaps listed.</li>{% endfor %}</ul>
+                        </section>
+                        <section class="result-section">
+                            <h3>Roadmap</h3>
+                            <ul>{% for item in report.result.get("roadmap", []) %}<li>{{ item }}</li>{% else %}<li>No roadmap steps listed.</li>{% endfor %}</ul>
+                        </section>
+                        <section class="result-section">
+                            <h3>Interview practice</h3>
+                            <ul>{% for item in report.result.get("interview_questions", []) %}<li>{{ item }}</li>{% else %}<li>No questions listed.</li>{% endfor %}</ul>
+                        </section>
+                    </div>
+                {% endif %}
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <section class="card empty-state">
+        <div class="section-icon" aria-hidden="true">&#128203;</div>
+        <h2>No analyses yet</h2>
+        <p>Your saved resume analyses will show up here.</p>
+        <a class="button button-primary" href="{{ url_for('dashboard') }}">Analyze a resume</a>
+    </section>
+{% endif %}
+{% endblock %}

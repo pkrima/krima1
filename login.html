@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Log in | AI Career Copilot{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <p class="eyebrow">WELCOME BACK</p>
+        <h1>Log in</h1>
+        <p class="sub-text">Pick up where your career journey left off.</p>
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+            <label for="email">Email address</label>
+            <input id="email" type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+            <button type="submit" class="button button-primary">Log in <span aria-hidden="true">&rarr;</span></button>
+        </form>
+        <p class="switch-auth">
+            New to Career Copilot? <a href="{{ url_for('signup') }}">Create an account</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

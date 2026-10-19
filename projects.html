@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Project portfolio | AI Career Copilot{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <p class="eyebrow">BUILD YOUR PORTFOLIO</p>
+    <h1>Project tracker</h1>
+    <p class="page-subtitle">Keep your project ideas, progress, tech stack, and portfolio links together.</p>
+</section>
+
+<section class="project-layout">
+    <section class="card project-form-card">
+        <div class="section-heading">
+            <div class="section-icon" aria-hidden="true">&#128736;</div>
+            <div>
+                <h2>Add a project</h2>
+                <p>Record a project you are planning or building.</p>
+            </div>
+        </div>
+        <form method="POST" action="{{ url_for('projects') }}" class="project-form">
+            <label for="title">Project name</label>
+            <input id="title" name="title" type="text" maxlength="120" placeholder="e.g. Job application tracker" required>
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4" maxlength="5000" placeholder="What does the project do?"></textarea>
+
+            <label for="technologies">Technologies</label>
+            <input id="technologies" name="technologies" type="text" maxlength="500" placeholder="Python, Flask, SQLite">
+
+            <label for="repository_url">Repository link <span class="optional-label">Optional</span></label>
+            <input id="repository_url" name="repository_url" type="url" maxlength="500" placeholder="https://github.com/you/project">
+
+            <label for="demo_url">Live demo link <span class="optional-label">Optional</span></label>
+            <input id="demo_url" name="demo_url" type="url" maxlength="500" placeholder="https://your-project.example.com">
+
+            <button type="submit" class="button button-primary">Add to portfolio <span aria-hidden="true">&rarr;</span></button>
+        </form>
+    </section>
+
+    <section class="project-list-section">
+        <div class="project-list-heading">
+            <div>
+                <p class="eyebrow">YOUR WORK</p>
+                <h2>Portfolio projects <span class="project-count">{{ projects|length }}</span></h2>
+            </div>
+        </div>
+        {% if projects %}
+            <div class="project-list">
+                {% for project in projects %}
+                    <article class="card project-card">
+                        <div class="project-card-top">
+                            <div>
+                                <span class="project-status status-{{ project.status }}">{{ statuses.get(project.status, "Planned") }}</span>
+                                <h3>{{ project.title }}</h3>
+                            </div>
+                            <form method="POST" action="{{ url_for('delete_project', project_id=project.id) }}" onsubmit="return confirm('Remove this project from your portfolio?');">
+                                <button class="project-delete" type="submit" aria-label="Delete {{ project.title }}">Delete</button>
+                            </form>
+                        </div>
+                        {% if project.description %}
+                            <p class="project-description">{{ project.description }}</p>
+                        {% endif %}
+                        {% if project.technologies %}
+                            <p class="project-technologies"><strong>Tech stack</strong> {{ project.technologies }}</p>
+                        {% endif %}
+                        <div class="project-card-bottom">
+                            <div class="project-links">
+                                {% if project.repository_url %}
+                                    <a href="{{ project.repository_url }}" target="_blank" rel="noopener noreferrer">Repository <span aria-hidden="true">&nearr;</span></a>
+                                {% endif %}
+                                {% if project.demo_url %}
+                                    <a href="{{ project.demo_url }}" target="_blank" rel="noopener noreferrer">Live demo <span aria-hidden="true">&nearr;</span></a>
+                                {% endif %}
+                            </div>
+                            <form method="POST" action="{{ url_for('update_project_status', project_id=project.id) }}" class="status-form">
+                                <label class="visually-hidden" for="project-status-{{ project.id }}">Project status</label>
+                                <select id="project-status-{{ project.id }}" name="status" aria-label="Status for {{ project.title }}">
+                                    {% for status, label in statuses.items() %}
+                                        <option value="{{ status }}" {% if project.status == status %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="button button-secondary" type="submit">Update</button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card empty-state project-empty-state">
+                <div class="section-icon" aria-hidden="true">&#128203;</div>
+                <h2>Your portfolio starts here</h2>
+                <p>Add a project to track its progress, technologies, and links.</p>
+            </div>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}
